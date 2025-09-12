@@ -3,27 +3,28 @@ using UnityEngine;
 using TMPro;
 
 
+[RequireComponent(typeof(TextMeshProUGUI))]
 public class FPSCounter : MonoBehaviour {
-    public string suffix = " FPS";
-    public int decimals = 1;
-    public double fps;
+  public string suffix = " FPS";
+  public int decimals = 1;
+  public double fps;
 
-    private double point;
-    
-    private TextMeshProUGUI textComponent;
+  double point;
 
-    void Start() {
-        this.textComponent = this.gameObject.GetComponent<TextMeshProUGUI>();
-    }
+  TextMeshProUGUI textComponent;
 
-    // Run with Start and public field change.
-    void OnValidate() {
-        this.point = Math.Pow(10, this.decimals);
-    }
+  void Start() {
+    this.textComponent = this.GetComponent<TextMeshProUGUI>();
+  }
 
-    void Update() {
-        // FPS is the number of frames over runtime
-        this.fps = Time.frameCount / Time.timeAsDouble;
-        this.textComponent.text = Convert.ToString(Math.Floor(this.point * fps) / this.point) + this.suffix;
-    }
+  // Run with Start and public field change.
+  void OnValidate() {
+    this.point = Math.Pow(10, this.decimals);
+  }
+
+  void Update() {
+    // FPS is the number of frames over runtime
+    this.fps = Time.frameCount / Time.timeAsDouble;
+    this.textComponent.text = Convert.ToString(Math.Floor(this.point * this.fps) / this.point) + this.suffix;
+  }
 }
