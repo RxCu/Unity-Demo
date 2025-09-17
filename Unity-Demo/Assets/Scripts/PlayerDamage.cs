@@ -70,6 +70,7 @@ public class PlayerDamage : MonoBehaviour {
   public bool isMaxPercentage = true;
   public bool isReset = false;
   public bool setTag = true;
+  public GameObject destroy;
 
   void Start() {
     if(this.setTag) {
@@ -80,6 +81,11 @@ public class PlayerDamage : MonoBehaviour {
   public void Take(PlayerHealth health) {
     if(this.isReset) {
       health.Reset();
+
+      if(this.destroy != null) {
+        Destroy(this.gameObject);
+      }
+
       return;
     }
 
@@ -88,13 +94,15 @@ public class PlayerDamage : MonoBehaviour {
     if(this.isPercentage) {
       if(this.isMaxPercentage) {
         health.TakePercentageMax(dmg);
-        return;
+      } else {
+        health.TakePercentageCurrent(dmg);
       }
-
-      health.TakePercentageCurrent(dmg);
-      return;
+    } else {
+      health.Take(dmg);
     }
 
-    health.Take(dmg);
+    if(this.destroy != null) {
+      Destroy(this.destroy);
+    }
   }
 }
