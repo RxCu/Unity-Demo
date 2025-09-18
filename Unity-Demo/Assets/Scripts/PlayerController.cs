@@ -4,6 +4,7 @@ using UnityEngine.SceneManagement;
 using Unity.Cinemachine;
 using System;
 using Unity.VisualScripting;
+using System.Threading;
 
 
 [RequireComponent(typeof(Rigidbody))]
@@ -16,6 +17,7 @@ public class PlayerController : MonoBehaviour {
   public float validJumpDistance = 0.5f;
   public float validPickupDistance = 1.0f;
   public float holdDistanceMultiplier = 1.5f;
+  public float heldObjectMoveTime = 0.2f;
 
   public double maxHealth = 100f;
   public double defaultHealth = 100f;
@@ -33,7 +35,7 @@ public class PlayerController : MonoBehaviour {
   int jumpNum = 0;
   bool canBufferJump = true;
 
-  Vector2 moveVector;
+  Vector2 moveVector = Vector2.zero;
 
   Camera mainCamera;
   CinemachineBrain cinemachineBrain;
@@ -44,6 +46,11 @@ public class PlayerController : MonoBehaviour {
   Rigidbody rb;
 
   GameObject heldObject;
+  Vector3 heldObjectTarget = Vector3.zero;
+  Vector3 heldObjectVelocity = Vector3.zero;
+  Rigidbody heldRb;
+
+  LayerMask mask;
 
   public void Pause() {
     Cursor.lockState = CursorLockMode.None;
@@ -64,10 +71,11 @@ public class PlayerController : MonoBehaviour {
       this.gameObject.tag = "Player";
     }
 
+    this.mask = LayerMask.GetMask("Player");
+
     this.health = new PlayerHealth(this.maxHealth, this.defaultHealth);
 
     this.rb = this.GetComponent<Rigidbody>();
-    this.moveVector = new Vector2(0, 0);
     this.jumpAction = InputSystem.actions.FindAction("Jump");
 
     // Initialize (Cinemachine) Camera
@@ -165,10 +173,11 @@ public class PlayerController : MonoBehaviour {
   void UpdateHeld() {
     if(this.heldObject == null) return;
 
-    this.heldObject.transform.position = this.transform.position;
+    this.heldObjectTarget = this.transform.position + this.mainCamera.transform.forward * this.holdDistanceMultiplier;
+    Vector3.SmoothDamp(this.heldObject.transform.position, this.heldObjectTarget, ref this.heldObjectVelocity, this.heldObjectMoveTime);
+    this.heldRb.linearVelocity = this.heldObjectVelocity;
+    // TODO: damp rotation
     this.heldObject.transform.rotation = this.mainCamera.transform.rotation;
-
-    this.heldObject.transform.position += this.mainCamera.transform.forward * this.holdDistanceMultiplier;
   }
 
   /*
@@ -197,8 +206,8 @@ public class PlayerController : MonoBehaviour {
     }
 
     if(this.heldObject != null) {
-      this.heldObject.GetComponent<Rigidbody>().isKinematic = false;
-      this.heldObject.GetComponent<Collider>().isTrigger = false;
+      this.heldRb.useGravity = true;
+      this.heldObject.GetComponent<Collider>().excludeLayers = 0;
       this.heldObject = null;
       return;
     }
@@ -212,9 +221,10 @@ public class PlayerController : MonoBehaviour {
 
       // Hold the object
       this.heldObject = this.holdHit.collider.gameObject;
+      this.heldRb = this.heldObject.GetComponent<Rigidbody>();
 
-      this.heldObject.GetComponent<Rigidbody>().isKinematic = true;
-      this.heldObject.GetComponent<Collider>().isTrigger = true;
+      this.heldRb.useGravity = false;
+      this.heldObject.GetComponent<Collider>().excludeLayers = this.mask;
     }
 
   }
