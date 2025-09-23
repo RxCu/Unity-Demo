@@ -3,76 +3,67 @@ using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using Unity.Cinemachine;
 using System;
-using Unity.VisualScripting;
-using System.Threading;
 
 
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerController : MonoBehaviour {
+  Rigidbody rb;
+  LayerMask mask;
 
-  public bool setTag = true;
+  [Header("Movement")]
   public float speed = 5f;
-  public float jumpHeight = 10f;
-  public int maxJumps = 2;
-  public float coyoteTime = 0.1f;
-  public float validJumpDistance = 0.5f;
-  public float validPickupDistance = 1.0f;
-  public float holdDistanceMultiplier = 1.5f;
-  public float heldObjectMoveTime = 0.2f;
-
-  public double maxHealth = 100f;
-  public double defaultHealth = 100f;
-
-  public PlayerHealth health = new PlayerHealth(100, 100);
-
-  public bool resetSceneOnDeath = false;
-
-  public bool paused = true;
-  public bool firstPerson = true;
-
-  public Vector3 respawnPoint = new Vector3(0.0f, 1.0f, 0.0f);
-
-  InputAction jumpAction;
-  public int jumpCount = 0;
-  public bool canBufferJump = true;
-  public double fallTime = 0;
 
   Vector2 moveVector = Vector2.zero;
 
-  Camera mainCamera;
-  CinemachineBrain cinemachineBrain;
+  [Header("Jumping")]
+  public float jumpHeight = 5f;
+  public int maxJumps = 1;
+  public float coyoteTime = 0.1f;
+  public float groundDetectDistance = 0.5f;
 
-  RaycastHit hit;
-  RaycastHit holdHit;
+  int jumpCount = 0;
+  double fallTime = 0;
 
-  Rigidbody rb;
+  RaycastHit jumpHit;
+
+  InputAction jumpAction;
+
+  [Header("Interaction")]
+  public float validInteractDistance = 1.0f;
+
+  RaycastHit interactHit;
+
+  [Header("Health")]
+  public double maxHealth = 100f;
+  public double defaultHealth = 100f;
+  public bool resetSceneOnDeath = false;
+  public Vector3 respawnPoint = new Vector3(0.0f, 1.0f, 0.0f);
+
+  public PlayerHealth health = new PlayerHealth(100, 100);
+
+  [Header("Weapons")]
+  public Weapon currentWeapon;
+  public Transform weaponAnchor;
+
+  bool attacking = false;
+
+  [Header("Holding")]
+  public float holdDistanceMultiplier = 1.5f;
+  public float heldObjectMoveTime = 0.2f;
 
   GameObject heldObject;
   Vector3 heldObjectTarget = Vector3.zero;
   Vector3 heldObjectVelocity = Vector3.zero;
   Rigidbody heldRb;
 
-  LayerMask mask;
+  [Header("Camera")]
+  public bool firstPerson = true;
+  public bool paused = true;
+  public Camera mainCamera;
+  CinemachineBrain cinemachineBrain;
 
-  public void Pause() {
-    Cursor.lockState = CursorLockMode.None;
-    Cursor.visible = true;
-    this.paused = true;
-    Time.timeScale = 0.0f;
-  }
-
-  public void Unpause() {
-    Cursor.lockState = CursorLockMode.Locked;
-    Cursor.visible = false;
-    this.paused = false;
-    Time.timeScale = 1.0f;
-  }
 
   void Start() {
-    if(this.setTag) {
-      this.gameObject.tag = "Player";
-    }
-
     this.mask = LayerMask.GetMask("Player");
 
     this.health = new PlayerHealth(this.maxHealth, this.defaultHealth);
@@ -92,8 +83,8 @@ public class PlayerController : MonoBehaviour {
     this.mainCamera = this.cinemachineBrain.OutputCamera;
 
     // Initialize Raycasts
-    this.hit = new RaycastHit();
-    this.holdHit = new RaycastHit();
+    this.jumpHit = new RaycastHit();
+    this.interactHit = new RaycastHit();
 
     if(this.paused) {
       this.Pause();
@@ -107,6 +98,10 @@ public class PlayerController : MonoBehaviour {
     this.health.maxHealth = this.maxHealth;
     this.health.defaultHealth = this.defaultHealth;
   }
+
+  /*
+   * Update
+   */
 
   void Update() {
     if(this.health.IsDead()) {
@@ -125,6 +120,10 @@ public class PlayerController : MonoBehaviour {
     this.UpdateRotation();
     this.UpdateMovement();
     this.UpdateHeld();
+
+    if(this.currentWeapon != null && this.heldObject == null && this.currentWeapon.auto && this.attacking) {
+      this.currentWeapon.Attack();
+    }
   }
 
   bool UpdatePaused() {
@@ -136,15 +135,6 @@ public class PlayerController : MonoBehaviour {
     }
 
     return this.paused;
-  }
-
-  void UpdateRotation() {
-    // set player yaw
-    Quaternion rot = this.mainCamera.transform.rotation;
-    rot.x = 0;
-    rot.z = 0;
-
-    this.transform.rotation = rot;
   }
 
   void UpdateMovement() {
@@ -159,20 +149,11 @@ public class PlayerController : MonoBehaviour {
                              (velocity.z * transform.right);
 
 
-    // TODO: fix this jump check system
     if(Physics.Raycast(this.transform.position, -this.transform.up,
-        out this.hit, this.validJumpDistance)) {
-
-      /*if(this.jumpHeld) {
-        return;
-      }*/
+        out this.jumpHit, this.groundDetectDistance)) {
 
       this.fallTime = 0;
       this.jumpCount = 0;
-
-      /*if(this.canBufferJump && this.jumpAction.phase == InputActionPhase.Performed) {
-        this.Jump();
-      }*/
 
       return;
     }
@@ -183,6 +164,16 @@ public class PlayerController : MonoBehaviour {
     if(this.fallTime >= this.coyoteTime && this.jumpCount < 1) {
       this.jumpCount = 1;
     }
+  }
+
+  void UpdateRotation() {
+    // set player yaw
+    Quaternion rot = this.mainCamera.transform.rotation;
+    rot.x = 0;
+    rot.z = 0;
+
+    this.transform.rotation = rot;
+    this.weaponAnchor.transform.rotation = this.mainCamera.transform.rotation;
   }
 
   void UpdateHeld() {
@@ -196,29 +187,51 @@ public class PlayerController : MonoBehaviour {
   }
 
   /*
-   * Callbacks
+   * Misc Player Actions
    */
 
-  public void OnMove(InputAction.CallbackContext ctx) {
+  void TryJump() {
+    if(this.jumpCount >= this.maxJumps) return;
+
+    Vector3 jumpVelocity = this.rb.linearVelocity;
+    jumpVelocity.y = this.jumpHeight;
+    this.rb.linearVelocity = jumpVelocity;
+
+    this.jumpCount += 1;
+  }
+
+  public void Pause() {
+    Cursor.lockState = CursorLockMode.None;
+    Cursor.visible = true;
+    this.paused = true;
+    Time.timeScale = 0.0f;
+  }
+
+  public void Unpause() {
+    Cursor.lockState = CursorLockMode.Locked;
+    Cursor.visible = false;
+    this.paused = false;
+    Time.timeScale = 1.0f;
+  }
+
+  /*
+   * Input Callbacks
+   */
+
+  public void Move(InputAction.CallbackContext ctx) {
     Vector2 input = ctx.ReadValue<Vector2>();
 
     this.moveVector.x = input.y;
     this.moveVector.y = input.x;
   }
 
-  public void OnJump(InputAction.CallbackContext ctx) {
-    if(ctx.phase != InputActionPhase.Canceled) {
-      this.Jump();
-      return;
-    }
-
-    this.canBufferJump = true;
+  public void Jump(InputAction.CallbackContext ctx) {
+    if(ctx.phase == InputActionPhase.Canceled) return;
+    this.TryJump();
   }
 
-  public void OnInteract(InputAction.CallbackContext ctx) {
-    if(ctx.phase == InputActionPhase.Canceled) {
-      return;
-    }
+  public void Interact(InputAction.CallbackContext ctx) {
+    if(ctx.phase == InputActionPhase.Canceled) return;
 
     if(this.heldObject != null) {
       this.heldRb.useGravity = true;
@@ -227,35 +240,47 @@ public class PlayerController : MonoBehaviour {
       return;
     }
 
-    Vector3 target = this.mainCamera.transform.position;
-    Vector3 rotation = this.mainCamera.transform.forward;
+    if(!Physics.Raycast(this.mainCamera.transform.position,
+      this.mainCamera.transform.forward, out this.interactHit, this.validInteractDistance))
+      return;
 
-    if(Physics.Raycast(target, rotation, out this.holdHit, this.validPickupDistance)) {
-      if(holdHit.collider == null ||
-         this.holdHit.collider.gameObject.tag != "Holdable") return;
+    if(this.interactHit.collider == null) return;
 
-      // Hold the object
-      this.heldObject = this.holdHit.collider.gameObject;
-      this.heldRb = this.heldObject.GetComponent<Rigidbody>();
+    GameObject other = this.interactHit.collider.gameObject;
 
-      this.heldRb.useGravity = false;
-      this.heldObject.GetComponent<Collider>().excludeLayers = this.mask;
+    switch(other.tag) {
+      case "Holdable":
+        this.heldObject = other;
+        this.heldRb = this.heldObject.GetComponent<Rigidbody>();
+
+        this.heldRb.useGravity = false;
+        this.heldObject.GetComponent<Collider>().excludeLayers = this.mask;
+        break;
+      case "Weapon":
+        other.GetComponent<Weapon>().Equip(this);
+        break;
     }
   }
 
-  void Jump() {
-    if(this.jumpCount >= this.maxJumps) return;
+  public void Attack(InputAction.CallbackContext ctx) {
+    if(ctx.phase == InputActionPhase.Canceled || this.currentWeapon == null || this.heldObject) {
+      this.attacking = false;
+      return;
+    }
 
-    this.canBufferJump = false;
-
-    // TODO: account for gravity (esp with air jumps)
-    //this.rb.AddForce(this.transform.up * this.jumpHeight, ForceMode.Impulse);
-    Vector3 jumpVelocity = this.rb.linearVelocity;
-    jumpVelocity.y = this.jumpHeight;
-    this.rb.linearVelocity = jumpVelocity;
-
-    this.jumpCount = this.jumpCount + 1;
+    this.attacking = true;
+    this.currentWeapon.Attack();
   }
+
+  public void Reload(InputAction.CallbackContext ctx) {
+    if(ctx.phase == InputActionPhase.Canceled || this.currentWeapon == null) return;
+
+    this.currentWeapon.Reload();
+  }
+
+  /*
+   * Misc Callbacks
+   */
 
   void OnTriggerEnter(Collider other) {
     if(other.tag == "Kill")
