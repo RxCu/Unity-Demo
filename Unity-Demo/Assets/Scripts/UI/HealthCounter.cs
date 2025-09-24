@@ -9,22 +9,24 @@ public class HealthCounter : MonoBehaviour {
   public int decimals = 1;
 
   public double health = 0.0;
-  public PlayerController player;
+  public EntityHealth entityHealth;
 
   double point;
 
-  TextMeshProUGUI textComponent;
+  public TextMeshProUGUI textComponent;
 
   void Start() {
     this.textComponent = this.GetComponent<TextMeshProUGUI>();
+    this.entityHealth.onChanged.AddListener(this.OnHealthChanged);
   }
 
   void OnValidate() {
     this.point = Math.Pow(10, this.decimals);
+    this.OnHealthChanged();
   }
 
-  void Update() {
-    this.health = this.player.health.Get();
+  public void OnHealthChanged() {
+    this.health = this.entityHealth.Health;
     this.textComponent.text = Convert.ToString(Math.Floor(this.point * this.health) / this.point) + this.suffix;
   }
 }

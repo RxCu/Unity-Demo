@@ -12,8 +12,14 @@ public class PlayerController : MonoBehaviour {
 
   [Header("Movement")]
   public float speed = 5f;
+  public float crouchSpeed = 3f; // TODO
+  public float sprintSpeed = 7f; // TODO
 
   Vector2 moveVector = Vector2.zero;
+  float currentSpeed;
+
+  bool crouching = false;
+  bool sprinting = false;
 
   [Header("Jumping")]
   public float jumpHeight = 5f;
@@ -33,20 +39,6 @@ public class PlayerController : MonoBehaviour {
 
   RaycastHit interactHit;
 
-  [Header("Health")]
-  public double maxHealth = 100f;
-  public double defaultHealth = 100f;
-  public bool resetSceneOnDeath = false;
-  public Vector3 respawnPoint = new Vector3(0.0f, 1.0f, 0.0f);
-
-  public PlayerHealth health = new PlayerHealth(100, 100);
-
-  [Header("Weapons")]
-  public Weapon currentWeapon;
-  public Transform weaponAnchor;
-
-  bool attacking = false;
-
   [Header("Holding")]
   public float holdDistanceMultiplier = 1.5f;
   public float heldObjectMoveTime = 0.2f;
@@ -56,20 +48,59 @@ public class PlayerController : MonoBehaviour {
   Vector3 heldObjectVelocity = Vector3.zero;
   Rigidbody heldRb;
 
+  [Header("Weapons")]
+  public Weapon currentWeapon;
+  public Transform weaponAnchor;
+
+  bool attacking = false;
+
+  [Header("Health")]
+  public EntityHealth health;
+  public Transform resetPoint;
+  public bool resetOnStart = true;
+  public bool rotateOnDeath = true; // TODO
+  public bool resetSceneOnDeath = false;
+
   [Header("Camera")]
-  public bool firstPerson = true;
-  public bool paused = true;
+  public bool firstPerson = true; // TODO
+
   public Camera mainCamera;
   CinemachineBrain cinemachineBrain;
+
+  bool _paused;
+
+  public bool Paused {
+    get {
+      return this._paused;
+    }
+    set {
+      this._paused = value;
+
+      Cursor.visible = this.Paused;
+
+      if(this.Paused) {
+        Cursor.lockState = CursorLockMode.None;
+        Time.timeScale = 0.0f;
+      } else {
+        Cursor.lockState = CursorLockMode.Locked;
+        Time.timeScale = 1.0f;
+      }
+    }
+  }
+
 
 
   void Start() {
     this.mask = LayerMask.GetMask("Player");
 
-    this.health = new PlayerHealth(this.maxHealth, this.defaultHealth);
+    this.currentSpeed = this.speed;
 
     this.rb = this.GetComponent<Rigidbody>();
     this.jumpAction = InputSystem.actions.FindAction("Jump");
+
+    if(this.health == null) {
+      this.health = this.GetComponent<EntityHealth>();
+    }
 
     // Initialize (Cinemachine) Camera
     if(this.cinemachineBrain == null) {
@@ -86,17 +117,9 @@ public class PlayerController : MonoBehaviour {
     this.jumpHit = new RaycastHit();
     this.interactHit = new RaycastHit();
 
-    if(this.paused) {
-      this.Pause();
+    if(this.resetOnStart) {
+      this.ResetPosition();
     }
-    else {
-      this.Unpause();
-    }
-  }
-
-  void OnValidate() {
-    this.health.maxHealth = this.maxHealth;
-    this.health.defaultHealth = this.defaultHealth;
   }
 
   /*
@@ -104,18 +127,7 @@ public class PlayerController : MonoBehaviour {
    */
 
   void Update() {
-    if(this.health.IsDead()) {
-      if(this.resetSceneOnDeath) {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-        return;
-      }
-
-      this.health.Reset();
-      this.transform.position = this.respawnPoint;
-      return;
-    }
-
-    if(this.UpdatePaused()) return;
+    if(this.Paused) return;
 
     this.UpdateRotation();
     this.UpdateMovement();
@@ -126,23 +138,12 @@ public class PlayerController : MonoBehaviour {
     }
   }
 
-  bool UpdatePaused() {
-    // TODO: add proper pause actions
-    if(Input.GetKey(KeyCode.Escape)) {
-      this.Pause();
-    } else if(Input.GetKey(KeyCode.Return)) {
-      this.Unpause();
-    }
-
-    return this.paused;
-  }
-
   void UpdateMovement() {
     // Copy data into new Struct
     Vector3 velocity = this.rb.linearVelocity;
 
-    velocity.x = this.moveVector.x * this.speed;
-    velocity.z = this.moveVector.y * this.speed;
+    velocity.x = this.moveVector.x * this.currentSpeed;
+    velocity.z = this.moveVector.y * this.currentSpeed;
 
     this.rb.linearVelocity = (velocity.x * transform.forward) +
                              (velocity.y * transform.up) +
@@ -167,7 +168,6 @@ public class PlayerController : MonoBehaviour {
   }
 
   void UpdateRotation() {
-    // set player yaw
     Quaternion rot = this.mainCamera.transform.rotation;
     rot.x = 0;
     rot.z = 0;
@@ -190,7 +190,16 @@ public class PlayerController : MonoBehaviour {
    * Misc Player Actions
    */
 
-  void TryJump() {
+  public bool DropHeld() {
+    if(this.heldObject == null) return false;
+
+    this.heldRb.useGravity = true;
+    this.heldObject.GetComponent<Collider>().excludeLayers = 0;
+    this.heldObject = null;
+    return true;
+  }
+
+  void Jump() {
     if(this.jumpCount >= this.maxJumps) return;
 
     Vector3 jumpVelocity = this.rb.linearVelocity;
@@ -200,45 +209,75 @@ public class PlayerController : MonoBehaviour {
     this.jumpCount += 1;
   }
 
-  public void Pause() {
-    Cursor.lockState = CursorLockMode.None;
-    Cursor.visible = true;
-    this.paused = true;
-    Time.timeScale = 0.0f;
+  public void Respawn() {
+    if(this.resetSceneOnDeath) {
+      SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+      return;
+    }
+
+    this.DropHeld();
+
+    if(this.health != null)
+      this.health.Reset();
+
+    this.ResetPosition();
   }
 
-  public void Unpause() {
-    Cursor.lockState = CursorLockMode.Locked;
-    Cursor.visible = false;
-    this.paused = false;
-    Time.timeScale = 1.0f;
+  public void ResetPosition() {
+    if(this.resetPoint == null) return;
+    this.transform.position = this.resetPoint.position;
+    this.transform.rotation = this.resetPoint.rotation;
+
+    this.UpdateRotation();
+
+    // TODO: rotate the Cinemachine camera with the resetPoint
   }
 
   /*
    * Input Callbacks
    */
 
-  public void Move(InputAction.CallbackContext ctx) {
+  public void OnMove(InputAction.CallbackContext ctx) {
     Vector2 input = ctx.ReadValue<Vector2>();
 
     this.moveVector.x = input.y;
     this.moveVector.y = input.x;
   }
 
-  public void Jump(InputAction.CallbackContext ctx) {
-    if(ctx.phase == InputActionPhase.Canceled) return;
-    this.TryJump();
+  public void OnLook(InputAction.CallbackContext ctx) {
   }
 
-  public void Interact(InputAction.CallbackContext ctx) {
+  public void OnCrouch(InputAction.CallbackContext ctx) {
+    // On Held
+    this.crouching = ctx.phase != InputActionPhase.Canceled;
+
+    if(this.crouching) {
+      this.currentSpeed = this.crouchSpeed;
+    } else {
+      this.currentSpeed = this.speed;
+    }
+  }
+
+  public void OnSprint(InputAction.CallbackContext ctx) {
+    // On Held
+    this.sprinting = ctx.phase != InputActionPhase.Canceled;
+
+    if(this.sprinting) {
+      this.currentSpeed = this.sprintSpeed;
+    } else {
+      this.currentSpeed = this.speed;
+    }
+  }
+
+  public void OnJump(InputAction.CallbackContext ctx) {
+    if(ctx.phase == InputActionPhase.Canceled) return;
+    this.Jump();
+  }
+
+  public void OnInteract(InputAction.CallbackContext ctx) {
     if(ctx.phase == InputActionPhase.Canceled) return;
 
-    if(this.heldObject != null) {
-      this.heldRb.useGravity = true;
-      this.heldObject.GetComponent<Collider>().excludeLayers = 0;
-      this.heldObject = null;
-      return;
-    }
+    if(this.DropHeld()) return;
 
     if(!Physics.Raycast(this.mainCamera.transform.position,
       this.mainCamera.transform.forward, out this.interactHit, this.validInteractDistance))
@@ -262,7 +301,7 @@ public class PlayerController : MonoBehaviour {
     }
   }
 
-  public void Attack(InputAction.CallbackContext ctx) {
+  public void OnAttack(InputAction.CallbackContext ctx) {
     if(ctx.phase == InputActionPhase.Canceled || this.currentWeapon == null || this.heldObject) {
       this.attacking = false;
       return;
@@ -272,23 +311,25 @@ public class PlayerController : MonoBehaviour {
     this.currentWeapon.Attack();
   }
 
-  public void Reload(InputAction.CallbackContext ctx) {
+  public void OnReload(InputAction.CallbackContext ctx) {
     if(ctx.phase == InputActionPhase.Canceled || this.currentWeapon == null) return;
 
     this.currentWeapon.Reload();
+  }
+
+  public void OnPaused(InputAction.CallbackContext ctx) {
+    if(ctx.phase != InputActionPhase.Started) return;
+
+    this.Paused = !this.Paused;
   }
 
   /*
    * Misc Callbacks
    */
 
-  void OnTriggerEnter(Collider other) {
-    if(other.tag == "Kill")
-      this.health.Kill();
-
-    if(other.tag == "Damage") {
-      PlayerDamage info = other.GetComponent<PlayerDamage>();
-      info.Take(health);
+  public void OnHealthChanged() {
+    if(this.health.IsDead()) {
+      this.Respawn();
     }
   }
 }
