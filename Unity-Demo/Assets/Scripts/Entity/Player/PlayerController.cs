@@ -42,6 +42,7 @@ public class PlayerController : MonoBehaviour {
   [Header("Holding")]
   public float holdDistanceMultiplier = 1.5f;
   public float heldObjectMoveTime = 0.2f;
+  public float heldObjectMaxVelocity = 1.0f;
 
   GameObject heldObject;
   Vector3 heldObjectTarget = Vector3.zero;
@@ -66,28 +67,6 @@ public class PlayerController : MonoBehaviour {
 
   public Camera mainCamera;
   CinemachineBrain cinemachineBrain;
-
-  bool _paused;
-
-  public bool Paused {
-    get {
-      return this._paused;
-    }
-    set {
-      this._paused = value;
-
-      Cursor.visible = this.Paused;
-
-      if(this.Paused) {
-        Cursor.lockState = CursorLockMode.None;
-        Time.timeScale = 0.0f;
-      } else {
-        Cursor.lockState = CursorLockMode.Locked;
-        Time.timeScale = 1.0f;
-      }
-    }
-  }
-
 
 
   void Start() {
@@ -127,7 +106,7 @@ public class PlayerController : MonoBehaviour {
    */
 
   void Update() {
-    if(this.Paused) return;
+    // Check paused
 
     this.UpdateRotation();
     this.UpdateMovement();
@@ -179,9 +158,12 @@ public class PlayerController : MonoBehaviour {
   void UpdateHeld() {
     if(this.heldObject == null) return;
 
+    // TODO: Add linearVelocity to current velocity
+
     this.heldObjectTarget = this.transform.position + this.mainCamera.transform.forward * this.holdDistanceMultiplier;
     Vector3.SmoothDamp(this.heldObject.transform.position, this.heldObjectTarget, ref this.heldObjectVelocity, this.heldObjectMoveTime);
-    this.heldRb.linearVelocity = this.heldObjectVelocity;
+
+    this.heldRb.linearVelocity = this.rb.linearVelocity + Vector3.ClampMagnitude(this.heldObjectVelocity, this.heldObjectMaxVelocity);
     // TODO: damp rotation
     this.heldObject.transform.rotation = this.mainCamera.transform.rotation;
   }
@@ -315,12 +297,6 @@ public class PlayerController : MonoBehaviour {
     if(ctx.phase == InputActionPhase.Canceled || this.currentWeapon == null) return;
 
     this.currentWeapon.Reload();
-  }
-
-  public void OnPaused(InputAction.CallbackContext ctx) {
-    if(ctx.phase != InputActionPhase.Started) return;
-
-    this.Paused = !this.Paused;
   }
 
   /*
