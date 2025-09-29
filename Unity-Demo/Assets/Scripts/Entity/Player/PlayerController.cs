@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.SceneManagement;
 using Unity.Cinemachine;
 using System;
 
@@ -57,10 +56,10 @@ public class PlayerController : MonoBehaviour {
 
   [Header("Health")]
   public EntityHealth health;
-  public Transform resetPoint;
+  /*public Transform resetPoint;
   public bool resetOnStart = true;
   public bool rotateOnDeath = true; // TODO
-  public bool resetSceneOnDeath = false;
+  public bool resetSceneOnDeath = false;*/
 
   [Header("Camera")]
   public bool firstPerson = true; // TODO
@@ -95,10 +94,6 @@ public class PlayerController : MonoBehaviour {
     // Initialize Raycasts
     this.jumpHit = new RaycastHit();
     this.interactHit = new RaycastHit();
-
-    if(this.resetOnStart) {
-      this.ResetPosition();
-    }
   }
 
   /*
@@ -191,30 +186,6 @@ public class PlayerController : MonoBehaviour {
     this.jumpCount += 1;
   }
 
-  public void Respawn() {
-    if(this.resetSceneOnDeath) {
-      SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-      return;
-    }
-
-    this.DropHeld();
-
-    if(this.health != null)
-      this.health.Reset();
-
-    this.ResetPosition();
-  }
-
-  public void ResetPosition() {
-    if(this.resetPoint == null) return;
-    this.transform.position = this.resetPoint.position;
-    this.transform.rotation = this.resetPoint.rotation;
-
-    this.UpdateRotation();
-
-    // TODO: rotate the Cinemachine camera with the resetPoint
-  }
-
   /*
    * Input Callbacks
    */
@@ -303,9 +274,8 @@ public class PlayerController : MonoBehaviour {
    * Misc Callbacks
    */
 
-  public void OnHealthChanged() {
-    if(this.health.IsDead()) {
-      this.Respawn();
-    }
+  public void OnDeath() {
+    this.DropHeld();
+    this.UpdateRotation();
   }
 }

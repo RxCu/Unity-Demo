@@ -1,27 +1,47 @@
 using System;
+using System.Collections.Generic;
+
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+
 using TMPro;
 
 
 public class GameManager : MonoBehaviour {
-  public GameObject pauseMenu;
+  [Header("Menus")]
+  public string initialMenu = "";
+  public bool isMenu = true;
+  public List<GenericMenu> menuList;
+  Dictionary<string, IMenu> menus;
 
-  public bool isPaused = true;
+  [Header("Game Type")]
   public bool isOnline = false;
-  public bool debug = false;
+  public bool isDebug = false;
+
+  MenuStack menuStack;
 
   void Start() {
-    if(this.debug) Debug.Log("Scene: #" + Convert.ToString(GameManager.GetScene()));
+    if(this.isDebug) Debug.Log("Scene: #" + Convert.ToString(GameManager.GetScene()));
 
-    this.Resume();
+    this.menuStack = new MenuStack();
+    this.menus = new Dictionary<string, IMenu>();
+
+    foreach(IMenu menu in menuList) {
+      this.menus[menu.Name] = menu;
+    }
+
+    this.PushMenu(this.initialMenu);
+    //this.Resume();
+  }
+
+  void Update() {
   }
 
   public void LoadLevelByIndex(int level) {
     SceneManager.LoadScene(level);
   }
-  
+
   public void LoadLevelByName(string level) {
     SceneManager.LoadScene(level);
   }
@@ -30,39 +50,25 @@ public class GameManager : MonoBehaviour {
     this.LoadLevelByName("Scenes/MainMenu");
   }
 
-  public static int GetScene() {
-    return SceneManager.GetActiveScene().buildIndex;
-  }
-
-  public void Pause() {
-    if(this.isPaused) {
-      this.Resume();
+  public void PushMenu(string key) {
+    if(!this.menus.ContainsKey(key)) {
       return;
     }
 
-    this.isPaused = true;
+    // Why does C# allow this variable declaration?
+    this.menus.TryGetValue(key, out IMenu menu);
 
-    if(this.pauseMenu != null)
-      this.pauseMenu.SetActive(true);
+    if(menu == null) return;
 
-    Cursor.visible = true;
-    Cursor.lockState = CursorLockMode.None;
-
-    if(!this.isOnline)
-      Time.timeScale = 0.0f;
+    this.menuStack.Push(menu);
   }
 
-  public void Resume() {
-    this.isPaused = false;
+  public IMenu PopMenu() {
+    return this.menuStack.Pop();
+  }
 
-    if(this.pauseMenu != null)
-      this.pauseMenu.SetActive(false);
-
-    Cursor.visible = false;
-    Cursor.lockState = CursorLockMode.Locked;
-
-    if(!this.isOnline)
-      Time.timeScale = 1.0f;
+  public static int GetScene() {
+    return SceneManager.GetActiveScene().buildIndex;
   }
 
   public void Quit() {

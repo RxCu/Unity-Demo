@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.Events;
 
 
@@ -15,8 +16,16 @@ public class EntityHealth : MonoBehaviour {
   public bool triggerCanDamage = true;
   public bool triggerInstaKill = true;
 
-  [Header("Callback")]
+  [Header("Reset Point")]
+  public bool shouldResetHealth = false;
+  public bool shouldResetPosition = false;
+  public bool shouldResetOnStart = false;
+  public bool shouldResetScene = false;
+  public Transform resetPosition;
+
+  [Header("Callbacks")]
   public UnityEvent onChanged = new UnityEvent();
+  public UnityEvent onDeath = new UnityEvent();
 
   public double Health {
     get {
@@ -27,6 +36,7 @@ public class EntityHealth : MonoBehaviour {
     }
   }
 
+  // Most direct access to EntityHealth._health
   public double Percent {
     get {
       return this._health;
@@ -34,11 +44,32 @@ public class EntityHealth : MonoBehaviour {
     set {
       this._health = Math.Clamp(value, 0, this.maxHealth);
       this.onChanged.Invoke();
+
+      if(this.Dead) {
+        this.Reset();
+        this.onDeath.Invoke();
+      }
+    }
+  }
+
+  public bool Dead {
+    get {
+      return this.Percent <= 0.0;
+    }
+    set {
+      if(value) {
+        this.Kill();
+      } else if(this.Dead) {
+        this.Health = this.resetHealth;
+      }
     }
   }
 
   void Start() {
     this.Health = this.initialHealth;
+    if(this.shouldResetOnStart) {
+      this.ResetPosition();
+    }
   }
 
   void OnTriggerEnter(Collider other) {
@@ -52,7 +83,29 @@ public class EntityHealth : MonoBehaviour {
   }
 
   public void Reset() {
+    if(this.shouldResetScene) {
+      SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+    if(this.shouldResetHealth) {
+      this.ResetHealth();
+    }
+    if(this.shouldResetPosition) {
+      this.ResetPosition();
+    }
+  }
+
+  public void ResetHealth() {
     this.Health = this.resetHealth;
+  }
+
+  public void ResetPosition() {
+    if(this.resetPosition == null) return;
+
+    this.transform.position = this.resetPosition.position;
+    this.transform.rotation = this.resetPosition.rotation;
+
+    // TODO: rotate the Cinemachine camera with the resetPoint
+    // PlayerController: UpdateRotation();
   }
 
   public void TakePercentageMax(double damage) {
@@ -77,9 +130,5 @@ public class EntityHealth : MonoBehaviour {
 
   public void Kill() {
     this.Percent = 0;
-  }
-
-  public bool IsDead() {
-    return this.Percent <= 0.0;
   }
 }
