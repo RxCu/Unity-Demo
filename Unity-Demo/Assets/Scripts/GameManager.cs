@@ -12,7 +12,7 @@ public class GameManager : MonoBehaviour {
   [Header("Menus")]
   public string initialMenu = "";
   public bool isMenu = true;
-  public List<GenericMenu> menuList;
+  public MenuStack menuList;
   Dictionary<string, IMenu> menus;
 
   [Header("Game Type")]
@@ -29,7 +29,7 @@ public class GameManager : MonoBehaviour {
 
     foreach(IMenu menu in menuList) {
       this.menus[menu.Name] = menu;
-      menu.enabled = false;
+      menu.Enabled = false;
       this.menuList.HideMenu(menu);
     }
   }
