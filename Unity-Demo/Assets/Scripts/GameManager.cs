@@ -29,13 +29,20 @@ public class GameManager : MonoBehaviour {
 
     foreach(IMenu menu in menuList) {
       this.menus[menu.Name] = menu;
+      menu.enabled = false;
+      this.menuList.HideMenu(menu);
     }
-
-    this.PushMenu(this.initialMenu);
-    //this.Resume();
+  }
+  
+  void OnValidate() {
+    if(this.menuStack.Count == 0 && this.isMenu)
+      this.PushMenu(this.initialMenu);
   }
 
   void Update() {
+    if(this.isMenu && this.menuStack.Count > 0) {
+      this.menuStack.Top.MenuUpdate();
+    }
   }
 
   public void LoadLevelByIndex(int level) {

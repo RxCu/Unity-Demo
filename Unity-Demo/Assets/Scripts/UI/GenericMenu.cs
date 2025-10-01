@@ -17,7 +17,7 @@ public interface IMenu {
 }
 
 public class MenuStack : List<IMenu> {
-  IMenu Top {
+  public IMenu Top {
     get {
       int index = this.Count - 1;
       if(index < 0) return null;
