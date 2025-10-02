@@ -3,16 +3,14 @@ using System.Collections.Generic;
 
 using UnityEngine;
 
-using UI;
 
 namespace UI {
   public class HUDElement : MonoBehaviour {
-    public void ElementUpdate() {
-      
-    }
+    public void ElementUpdate() { }
+   
   }
   
-  public class PlayerHUD : GenericMenu {
+  public class PlayerHUD : MonoBehaviour {
     public List<HUDElement> elements;
     
     public void MenuUpdate() {

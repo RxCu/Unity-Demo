@@ -2,8 +2,6 @@ using System;
 using UnityEngine;
 using TMPro;
 
-using UI;
-
 
 namespace UI {
   [RequireComponent(typeof(TextMeshProUGUI))]
@@ -25,7 +23,7 @@ namespace UI {
       this.point = Math.Pow(10, this.decimals);
     }
   
-    void ElementUpdate() {
+    new void ElementUpdate() {
       // FPS is the number of frames over runtime
       this.fps = Time.frameCount / Time.timeAsDouble;
       this.textComponent.text = Convert.ToString(Math.Floor(this.point * this.fps) / this.point) + this.suffix;

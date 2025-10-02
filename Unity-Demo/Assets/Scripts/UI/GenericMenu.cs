@@ -8,13 +8,16 @@ namespace UI {
   public interface IMenu {
     public bool Enabled { get; set; }
     public bool Visible { get; set; }
+    public bool CursorVisible { get; }
+    public bool CursorLocked { get; }
+    public bool Paused { get; }
     public string Name { get; }
     public GameObject MenuGameObject { get; }
 
-    public void MenuUpdate();
+    public void MenuUpdate() { }
 
-    public void Show();
-    public void Hide();
+    public void Show() { }
+    public void Hide() { }
   }
 
   public class MenuStack : List<IMenu> {
@@ -29,7 +32,7 @@ namespace UI {
     public void Push(IMenu menu) {
       IMenu top = this.Top;
       if(top != null) {
-        this.HideMenu(menu);
+        this.HideMenu(top);
       }
 
       this.Add(menu);
@@ -48,6 +51,12 @@ namespace UI {
       int index = this.Count - 1;
       this.RemoveAt(index);
 
+      IMenu visible = this.Top;
+
+      if(visible != null) {
+        this.ShowMenu(visible);
+      }
+
       return top;
     }
 
@@ -65,28 +74,25 @@ namespace UI {
   }
 
 
-
   public class GenericMenu : MonoBehaviour, IMenu {
     bool _visible = false;
     bool _enabled = false;
 
-    public string menuName = "Menu";
+    [SerializeField]
+    protected string menuName = "Menu";
+    [SerializeField]
+    protected bool cursorLocked = false;
+    [SerializeField]
+    protected bool cursorVisible = true;
+    [SerializeField]
+    protected bool pause = true;
 
     public bool Visible { get => this._visible; set => this._visible = value; }
-    public bool Enabled { get => this._enabled; set => this._enabled = value;}
+    public bool Enabled { get => this._enabled; set => this._enabled = value; }
+    public bool CursorLocked { get => this.cursorLocked; }
+    public bool CursorVisible { get => this.cursorVisible; }
+    public bool Paused { get => this.pause; }
     public string Name { get => menuName; }
-    public GameObject MenuGameObject {get => this.gameObject;}
-
-    public void MenuUpdate() {
-
-    }
-
-    public void Show() {
-
-    }
-
-    public void Hide() {
-
-    }
+    public GameObject MenuGameObject {get => this.gameObject; }
   }
 }
