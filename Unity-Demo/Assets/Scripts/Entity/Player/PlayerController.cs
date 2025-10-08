@@ -9,7 +9,8 @@ public class PlayerController : MonoBehaviour {
   Rigidbody rb;
   LayerMask mask;
 
-  [Header("Movement")]
+
+[Header("Movement")]
   public float speed = 5f;
   public float crouchSpeed = 3f; // TODO
   public float sprintSpeed = 7f; // TODO
@@ -20,7 +21,7 @@ public class PlayerController : MonoBehaviour {
   bool crouching = false;
   bool sprinting = false;
 
-  [Header("Jumping")]
+[Header("Jumping")]
   public float jumpHeight = 5f;
   public int maxJumps = 1;
   public float coyoteTime = 0.1f;
@@ -33,12 +34,12 @@ public class PlayerController : MonoBehaviour {
 
   InputAction jumpAction;
 
-  [Header("Interaction")]
+[Header("Interaction")]
   public float validInteractDistance = 1.0f;
 
   RaycastHit interactHit;
 
-  [Header("Holding")]
+[Header("Holding")]
   public float holdDistanceMultiplier = 1.5f;
   public float heldObjectMoveTime = 0.2f;
   public float heldObjectMaxVelocity = 1.0f;
@@ -48,24 +49,23 @@ public class PlayerController : MonoBehaviour {
   Vector3 heldObjectVelocity = Vector3.zero;
   Rigidbody heldRb;
 
-  [Header("Weapons")]
+[Header("Weapons")]
   public Weapon currentWeapon;
   public Transform weaponAnchor;
 
   bool attacking = false;
 
-  [Header("Health")]
+[Header("Health")]
   public EntityHealth health;
-  /*public Transform resetPoint;
-  public bool resetOnStart = true;
-  public bool rotateOnDeath = true; // TODO
-  public bool resetSceneOnDeath = false;*/
 
-  [Header("Camera")]
-  public bool firstPerson = true; // TODO
+[Header("Camera")]
+//public bool firstPerson = true;
 
   public Camera mainCamera;
   CinemachineBrain cinemachineBrain;
+
+[Header("Powerups")]
+	public PlayerPowerup currentPowerup;
 
 
   void Start() {
@@ -153,8 +153,6 @@ public class PlayerController : MonoBehaviour {
   void UpdateHeld() {
     if(this.heldObject == null) return;
 
-    // TODO: Add linearVelocity to current velocity
-
     this.heldObjectTarget = this.transform.position + this.mainCamera.transform.forward * this.holdDistanceMultiplier;
     Vector3.SmoothDamp(this.heldObject.transform.position, this.heldObjectTarget, ref this.heldObjectVelocity, this.heldObjectMoveTime);
 
@@ -172,15 +170,24 @@ public class PlayerController : MonoBehaviour {
 
     this.heldRb.useGravity = true;
     this.heldObject.GetComponent<Collider>().excludeLayers = 0;
+
     this.heldObject = null;
     return true;
   }
 
   void Jump() {
     if(this.jumpCount >= this.maxJumps) return;
-
+		
+		// Copy data between structs here
     Vector3 jumpVelocity = this.rb.linearVelocity;
     jumpVelocity.y = this.jumpHeight;
+
+		if(this.currentPowerup && this.currentPowerup.isJump) {
+				jumpVelocity.y *= this.currentPowerup.multiplier;
+				
+				this.currentPowerup = null;
+		}
+		
     this.rb.linearVelocity = jumpVelocity;
 
     this.jumpCount += 1;

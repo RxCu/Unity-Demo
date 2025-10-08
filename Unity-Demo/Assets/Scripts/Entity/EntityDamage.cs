@@ -5,9 +5,12 @@ using UnityEngine;
 public class EntityDamage : MonoBehaviour {
   public double damage = 10f;
 
-  public bool isHeal = false;
+[Header("Percentage")]
   public bool isPercentage = false;
   public bool isMaxPercentage = true;
+
+[Header("Meta")]
+  public bool isHeal = false;
   public bool isReset = false;
   public bool setTag = true;
   public GameObject destroy;

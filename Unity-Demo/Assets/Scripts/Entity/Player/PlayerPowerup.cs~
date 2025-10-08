@@ -1,0 +1,19 @@
+using UnityEngine;
+
+
+class PlayerPowerup : MonoBehaviour {
+  public double multiplier = 1;
+	public double duration = 1;
+
+[Header("Jumping")]
+  public bool isJump = true;
+	public bool grounded = true;
+
+	// Speed is probably not going to be used
+[Header("Speed")]
+  public bool isSpeed = false;
+
+  void OnTriggerEnter(Collider other) {
+	}
+	
+}

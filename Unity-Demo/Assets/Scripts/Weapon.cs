@@ -13,6 +13,7 @@ public class Weapon : MonoBehaviour {
 
   [Header("Meta")]
   public bool fireable = true;
+  public bool reloading = false;
   public bool auto = false;
   public int weaponID;
   public string weaponName;
@@ -31,6 +32,7 @@ public class Weapon : MonoBehaviour {
   public int ammo;
   public int maxAmmo;
   public int ammoRefill;
+	public bool infiniteAmmo = false;
 
   void Start() {
     this.weaponSpeaker = this.GetComponent<AudioSource>();
@@ -59,7 +61,7 @@ public class Weapon : MonoBehaviour {
 
     this.clip--;
     this.fireable = false;
-    StartCoroutine("cooldownFire", this.rof);
+    StartCoroutine("cooldownFire");
   }
 
   public void Reload() {
@@ -68,9 +70,12 @@ public class Weapon : MonoBehaviour {
     int reloadCount = Math.Clamp(this.ammo, 0, this.clipSize - this.clip);
 
     this.clip += reloadCount;
-    this.ammo -= reloadCount;
 
-    StartCoroutine("cooldownFire", this.reloadCooldown);
+		if(!this.infiniteAmmo)
+			this.ammo -= reloadCount;
+
+		this.reloading = true;
+    StartCoroutine("cooldownReload");
   }
 
   public void Equip(PlayerController player) {
@@ -103,9 +108,16 @@ public class Weapon : MonoBehaviour {
     this.player = null;
   }
 
-  IEnumerator cooldownFire(float cooldownTime) {
-    yield return new WaitForSeconds(cooldownTime);
+  IEnumerator cooldownFire() {
+    yield return new WaitForSeconds(this.rof);
 
     this.fireable = clip > 0;
   }
+
+	IEnumerator cooldownReload() {
+    yield return new WaitForSeconds(this.reloadCooldown);
+
+		this.reloading = false;
+		this.fireable = true;
+	}
 }
