@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEngine;
 
 
+
 public class PlayerPowerup : MonoBehaviour {
   public float multiplier = 1;
 	bool collectible = true;
@@ -12,6 +13,7 @@ public class PlayerPowerup : MonoBehaviour {
 
 [Header("Jumping")]
   public bool isJump = true;
+
 
 [Header("Respawn")]
 	public bool respawn = true;
