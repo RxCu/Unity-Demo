@@ -285,4 +285,12 @@ public class PlayerController : MonoBehaviour {
     this.DropHeld();
     this.UpdateRotation();
   }
+
+	public void OnTriggerEnter(Collider other) {
+			if(other.tag != "PlayerTrigger") return;
+
+			PlayerTrigger t = other.GetComponent<PlayerTrigger>();
+
+			t.onTrigger.Invoke();
+	}
 }

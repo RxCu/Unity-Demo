@@ -4,8 +4,8 @@
 *** TODO Railing
 *** TODO Elevator?
 *** TODO Janitor stuff
-*** DONE Door
-*** DONE Desks
+** TODO Posters
+- Mention breaking bones from no railing
 
 * Alpha
 ** TODO Powerups
@@ -14,5 +14,14 @@
 *** TODO Finish Level01
 *** TODO Finish Level02
 
-* Emacs
-** DONE Add Fira Mono/Sans/ FontAwesome fonts
+
+* Release
+** Camera Clipping through Boxes w
+** Fix Chair Model
+** Prevent Softlocking on floor 3 - this is very likely
+** Direct the player away from the doors
+*** Add Keycards/Locks??
+** Optimize Paper Stacks
+** Cleaner/Better Transition into jump boost (preservation) puzzle?
+** Switching Levels?
+** Fall Damage?
