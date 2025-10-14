@@ -1,3 +1,27 @@
+* Animation Controller
+export animations as fbx files
+create an animation controller in unity - finite state machine
+** Exit
+- When the Animation controller stops
+** Any State
+- T-Pose
+** Entry
+- Start of animation controller
+** States
+- Motion: the actual animation
+- Use bi-directional transitions
+- Exit time - time between animations
+
+- Parameters are data used for animation logic
+  - Triggers?
+  - Treated as variables to be modified in code
+
+** Animating in code
+- Get the Animator (AnimationController) component as an object in C#
+  - Animator.SetBool(String name, bool value)
+  - Animator.SetFloat(String name, float value)
+  - Animator.SetInteger(String name, int value)
+
 * Beta
 ** Modelling
 *** TODO Reception Desk
@@ -8,19 +32,29 @@
 - Mention breaking bones from no railing
 
 * Alpha
-** TODO Powerups
-*** TODO Add Jump Boost
+** TODO Quick Travel - Elevators
+** DONE Powerups
+*** DONE Add Jump Boost
 ** TODO Design
-*** TODO Finish Level01
+*** DONE Finish Level01
+- Introduces jumping and jump boosts with a puzzle at the end
 *** TODO Finish Level02
+**** TODO Target System - Glass?
+- Introduces the target system (in an isolated way) and then integrates it with jumping for a puzzle
 
-
+- Chairs - scaled to 0.3 on all axis
+- Computers - 0.26343
+- Tables - 0.5627247
+  
 * Release
-** Camera Clipping through Boxes w
+** Figure out why Unity can't Load Level 2
+** Camera Clipping through themap and Boxes
 ** Fix Chair Model
-** Prevent Softlocking on floor 3 - this is very likely
+** TODO Prevent Softlocking on floor 3 - this is very likely
+** TODO Softlock System
+** Hold System - Fix far held objects
 ** Direct the player away from the doors
-*** Add Keycards/Locks??
+*** Add Keycards/Locks for easter eggs/other things??
 ** Optimize Paper Stacks
 ** Cleaner/Better Transition into jump boost (preservation) puzzle?
 ** Switching Levels?
