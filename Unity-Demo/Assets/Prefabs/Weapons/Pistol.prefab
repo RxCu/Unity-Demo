@@ -43,10 +43,10 @@ Rigidbody:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3022113971660913983}
-  serializedVersion: 4
+  serializedVersion: 5
   m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -177,11 +177,12 @@ MonoBehaviour:
   firePoint: {fileID: 6674611186473895777}
   firingDirection: {fileID: 0}
   fireable: 1
+  reloading: 0
   auto: 0
   weaponID: 1
   weaponName: Pistol
   projLifespan: 1
-  projVelocity: 1000000
+  projVelocity: 10000000
   reloadCooldown: 0.5
   rof: 0.1
   fireModes: 0
@@ -191,6 +192,7 @@ MonoBehaviour:
   ammo: 100000
   maxAmmo: 0
   ammoRefill: 0
+  infiniteAmmo: 0
 --- !u!65 &5406110339067427316
 BoxCollider:
   m_ObjectHideFlags: 0
