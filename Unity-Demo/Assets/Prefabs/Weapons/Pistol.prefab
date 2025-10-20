@@ -182,7 +182,7 @@ MonoBehaviour:
   weaponID: 1
   weaponName: Pistol
   projLifespan: 1
-  projVelocity: 10000000
+  projVelocity: 5000000
   reloadCooldown: 0.5
   rof: 0.1
   fireModes: 0
