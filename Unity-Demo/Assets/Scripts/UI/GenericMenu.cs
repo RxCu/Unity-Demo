@@ -66,7 +66,7 @@ namespace UI {
       menu.MenuGameObject.SetActive(false);
     }
 
-    void ShowMenu(IMenu menu) {
+    public void ShowMenu(IMenu menu) {
       menu.MenuGameObject.SetActive(true);
       menu.Visible = true;
       menu.Show();

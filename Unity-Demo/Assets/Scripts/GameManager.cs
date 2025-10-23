@@ -19,9 +19,16 @@ public class GameManager : MonoBehaviour {
   [Header("Cursor")]
   public bool cursorLocked = true;
   public bool cursorVisible = false;
+	public GenericMenu hud;
+
+  [Header("Music")]
+	public List<AudioSource> songList;
+	public int currentSong = 0;
+	public float musicVolume = 0.5f;
 
   [Header("Menus")]
   public string initialMenu = "";
+	public string pauseMenu = "";
   public bool isMenu = true;
   public List<GenericMenu> menuList;
   Dictionary<string, IMenu> menus;
@@ -40,6 +47,12 @@ public class GameManager : MonoBehaviour {
       this.menuStack.HideMenu(menu);
     }
 
+		foreach(AudioSource song in this.songList) {
+				song.Stop();
+		}
+
+		if(this.currentSong > -1)	this.StartSongIndex(this.currentSong);
+
     this.OnValidate();
   }
   
@@ -51,6 +64,7 @@ public class GameManager : MonoBehaviour {
       this.PushMenu(this.initialMenu);
     } else {
       this.PopMenu();
+			this.menuStack.ShowMenu(this.hud);
     }
   }
 
@@ -61,11 +75,32 @@ public class GameManager : MonoBehaviour {
     }
   }
 
+	public void SetMusicVolume(float volume) {
+			this.musicVolume = volume;
+
+			if(this.currentSong > -1) {
+					this.songList[this.currentSong].volume = this.musicVolume;
+			}
+	}
+
+	public void StartSongIndex(int index) {
+			if(this.currentSong > -1) {
+					this.songList[this.currentSong].Stop();
+			}
+			
+		  this.songList[index].volume = this.musicVolume;
+			this.songList[index].Play();
+			this.currentSong = index;
+	}
+
   public void LoadLevelByIndex(int level) {
     SceneManager.LoadScene(level);
   }
 
   public void LoadLevelByName(string level) {
+			if(this.currentSong > -1) {
+					this.songList[this.currentSong].Stop();
+			}
     SceneManager.LoadScene(level);
   }
 
@@ -84,6 +119,7 @@ public class GameManager : MonoBehaviour {
 
     this.menuStack.Push(menu);
     this.isMenu = true;
+		this.menuStack.HideMenu(this.hud);
 
     Cursor.lockState = menu.CursorLocked ? CursorLockMode.Locked : CursorLockMode.None;
     Cursor.visible = menu.CursorVisible;
@@ -100,9 +136,18 @@ public class GameManager : MonoBehaviour {
       Cursor.visible = this.cursorVisible;
 
       Time.timeScale = this.timeScale;
+			this.menuStack.ShowMenu(this.hud);
     }
     return menu;
   }
+
+	public void OnEscape() {
+		if(this.menuStack.Count == 0) {
+			this.PushMenu(this.pauseMenu);
+		} else {
+			this.PopMenu();
+		}
+	}
 
   // Why does unity not allow functions with return values in the inspector?
   public void CloseMenu() {
