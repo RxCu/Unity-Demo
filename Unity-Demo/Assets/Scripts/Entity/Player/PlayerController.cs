@@ -114,6 +114,7 @@ public class PlayerController : MonoBehaviour {
 
   void UpdateMovement() {
     // Copy data into new Struct
+		
     Vector3 velocity = this.rb.linearVelocity;
 
     velocity.x = this.moveVector.x * this.currentSpeed;
@@ -122,8 +123,7 @@ public class PlayerController : MonoBehaviour {
     this.rb.linearVelocity = (velocity.x * transform.forward) +
                              (velocity.y * transform.up) +
                              (velocity.z * transform.right);
-
-
+		
     if(Physics.Raycast(this.transform.position, -this.transform.up,
         out this.jumpHit, this.groundDetectDistance)) {
 

@@ -9,8 +9,29 @@ using TMPro;
 
 using UI;
 
+public class GameState {
+	public string name;
+	
+	public float musicVolume;
+
+	public List<bool> unlocked;
+	
+	// TODO: Find player state
+	public GameState(uint levels) {
+		this.musicVolume = 0.5f;
+		this.unlocked = new();
+	}
+
+	public void LoadState() {
+	}
+	
+	public void SaveState() {
+	}
+}
 
 public class GameManager : MonoBehaviour {
+	public static GameState State;
+ 
   [Header("Game Type")]
   public bool isOnline = false;
   public bool isDebug = false;
@@ -24,7 +45,6 @@ public class GameManager : MonoBehaviour {
   [Header("Music")]
 	public List<AudioSource> songList;
 	public int currentSong = 0;
-	public float musicVolume = 0.5f;
 
   [Header("Menus")]
   public string initialMenu = "";
@@ -35,9 +55,12 @@ public class GameManager : MonoBehaviour {
   MenuStack menuStack = new MenuStack();
   IMenu currentMenu;
 
-
   void Start() {
     if(this.isDebug) Debug.Log("Scene: #" + Convert.ToString(SceneManager.GetActiveScene().buildIndex));
+
+		if(State == null) {
+			State = new();
+		}
 
     this.menus = new Dictionary<string, IMenu>();
 
@@ -76,10 +99,10 @@ public class GameManager : MonoBehaviour {
   }
 
 	public void SetMusicVolume(float volume) {
-			this.musicVolume = volume;
+			State.musicVolume = volume;
 
 			if(this.currentSong > -1) {
-					this.songList[this.currentSong].volume = this.musicVolume;
+					this.songList[this.currentSong].volume = State.musicVolume;
 			}
 	}
 
@@ -88,7 +111,7 @@ public class GameManager : MonoBehaviour {
 					this.songList[this.currentSong].Stop();
 			}
 			
-		  this.songList[index].volume = this.musicVolume;
+		  this.songList[index].volume = State.musicVolume;
 			this.songList[index].Play();
 			this.currentSong = index;
 	}
@@ -155,6 +178,7 @@ public class GameManager : MonoBehaviour {
   }
 
   public void Quit() {
+		State.SaveState();
     Application.Quit();
   }
 }

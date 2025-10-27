@@ -8,7 +8,7 @@ namespace UI {
 		public Slider musicVolumeSlider;
 
 		void Start() {
-			this.musicVolumeSlider.normalizedValue = this.gameManager.musicVolume;
+			this.musicVolumeSlider.normalizedValue = GameManager.State.musicVolume;
 		}
 		
 		public void HandleMusicVolume() {
