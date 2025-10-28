@@ -4,8 +4,6 @@ using UnityEngine;
 
 
 public class Weapon : MonoBehaviour {
-  PlayerController player;
-
   public GameObject projectile;
   public AudioSource weaponSpeaker;
   public Transform firePoint;
@@ -78,34 +76,21 @@ public class Weapon : MonoBehaviour {
     StartCoroutine("cooldownReload");
   }
 
-  public void Equip(PlayerController player) {
-    if(player.currentWeapon != null) {
-      player.currentWeapon.Unequip();
-    }
-
-    player.currentWeapon = this;
-
-    this.transform.SetPositionAndRotation(player.weaponAnchor.position, player.weaponAnchor.rotation);
-    this.transform.SetParent(player.weaponAnchor);
-
+	public void Attach(Transform anchor) {
+    this.transform.SetPositionAndRotation(anchor.position, anchor.rotation);
+    this.transform.SetParent(anchor);
+		
     this.GetComponent<Rigidbody>().isKinematic = true;
     this.GetComponent<Collider>().isTrigger = true;
+	}
 
-    // Get player camera
-    this.firingDirection = player.mainCamera;
-    this.player = player;
-  }
-
-  public void Unequip() {
-    player.currentWeapon = null;
-
+  public void Unattach() {
     this.transform.SetParent(null);
 
     this.GetComponent<Rigidbody>().isKinematic = false;
     this.GetComponent<Collider>().isTrigger = false;
 
     this.firingDirection = null;
-    this.player = null;
   }
 
   IEnumerator cooldownFire() {

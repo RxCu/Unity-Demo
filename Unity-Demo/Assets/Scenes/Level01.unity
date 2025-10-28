@@ -4440,6 +4440,17 @@ Transform:
   - {fileID: 2031446370}
   m_Father: {fileID: 1099603299}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &588874084 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7357277766045755544, guid: b8423eb82f78db14aa3e251cd126aa47, type: 3}
+  m_PrefabInstance: {fileID: 1132517670}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07e68ffc36935eb49ae2d42afd734453, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &589076569
 GameObject:
   m_ObjectHideFlags: 0
@@ -5484,6 +5495,17 @@ Transform:
   - {fileID: 1990910846}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &713060097 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7066896543760769558, guid: b8423eb82f78db14aa3e251cd126aa47, type: 3}
+  m_PrefabInstance: {fileID: 1132517670}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5566dd9438e8cb48bacdc4709f5a11c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &714431289
 GameObject:
   m_ObjectHideFlags: 0
@@ -9237,6 +9259,26 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1547202812416104516, guid: b8423eb82f78db14aa3e251cd126aa47, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1547202812416104516, guid: b8423eb82f78db14aa3e251cd126aa47, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2317841774990986878, guid: b8423eb82f78db14aa3e251cd126aa47, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2317841774990986878, guid: b8423eb82f78db14aa3e251cd126aa47, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2317841774990986878, guid: b8423eb82f78db14aa3e251cd126aa47, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3096534630232649400, guid: b8423eb82f78db14aa3e251cd126aa47, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -9294,17 +9336,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b8423eb82f78db14aa3e251cd126aa47, type: 3}
---- !u!114 &1132517671 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 7028323594740768051, guid: b8423eb82f78db14aa3e251cd126aa47, type: 3}
-  m_PrefabInstance: {fileID: 1132517670}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 07e68ffc36935eb49ae2d42afd734453, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1151687359
 GameObject:
   m_ObjectHideFlags: 0
@@ -17057,7 +17088,7 @@ GameObject:
   - component: {fileID: 1990910849}
   - component: {fileID: 1990910848}
   - component: {fileID: 1990910847}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: NextLevelTrigger
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -17096,7 +17127,7 @@ MonoBehaviour:
   onTrigger:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1132517671}
+      - m_Target: {fileID: 588874084}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
         m_MethodName: LoadLevelByName
         m_Mode: 5
@@ -18673,18 +18704,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
-    - target: {fileID: 8238132794442736182, guid: 0169a1b733e2e4249a33f4b2ff65abb6, type: 3}
-      propertyPath: m_ActionEvents.Array.data[20].m_PersistentCalls.m_Calls.Array.data[0].m_Mode
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 8238132794442736182, guid: 0169a1b733e2e4249a33f4b2ff65abb6, type: 3}
-      propertyPath: m_ActionEvents.Array.data[20].m_PersistentCalls.m_Calls.Array.data[0].m_Target
+    - target: {fileID: 1956367316698001597, guid: 0169a1b733e2e4249a33f4b2ff65abb6, type: 3}
+      propertyPath: hud
       value: 
-      objectReference: {fileID: 1132517671}
-    - target: {fileID: 8238132794442736182, guid: 0169a1b733e2e4249a33f4b2ff65abb6, type: 3}
-      propertyPath: m_ActionEvents.Array.data[20].m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: PushMenu
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 713060097}
+    - target: {fileID: 1956367316698001597, guid: 0169a1b733e2e4249a33f4b2ff65abb6, type: 3}
+      propertyPath: gameManager
+      value: 
+      objectReference: {fileID: 588874084}
     - target: {fileID: 9122834963447176999, guid: 0169a1b733e2e4249a33f4b2ff65abb6, type: 3}
       propertyPath: resetPosition
       value: 

@@ -3,12 +3,12 @@ using UnityEngine.InputSystem;
 using Unity.Cinemachine;
 using System;
 
+using UI;
 
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerController : MonoBehaviour {
-  Rigidbody rb;
-  LayerMask mask;
-
+	public GameManager gameManager;
+	HUD hud;
 
 [Header("Movement")]
   public float speed = 5f;
@@ -17,6 +17,7 @@ public class PlayerController : MonoBehaviour {
 
   Vector2 moveVector = Vector2.zero;
   float currentSpeed;
+  Rigidbody rb;
 
   bool crouching = false;
   bool sprinting = false;
@@ -48,6 +49,8 @@ public class PlayerController : MonoBehaviour {
   Vector3 heldObjectTarget = Vector3.zero;
   Vector3 heldObjectVelocity = Vector3.zero;
   Rigidbody heldRb;
+	
+  LayerMask mask;
 
 [Header("Weapons")]
   public Weapon currentWeapon;
@@ -70,6 +73,8 @@ public class PlayerController : MonoBehaviour {
 
   void Start() {
     this.mask = LayerMask.GetMask("Player");
+
+		this.hud = this.gameManager.hud;
 
     this.currentSpeed = this.speed;
 
@@ -256,10 +261,35 @@ public class PlayerController : MonoBehaviour {
         this.heldObject.GetComponent<Collider>().excludeLayers = this.mask;
         break;
       case "Weapon":
-        other.GetComponent<Weapon>().Equip(this);
+				Weapon weapon = other.GetComponent<Weapon>();
+				
+				this.Equip(weapon);
         break;
     }
   }
+
+	public void Equip(Weapon weapon) {
+    if(this.currentWeapon != null) {
+      this.Unequip();
+    }
+
+    this.currentWeapon = weapon;
+
+		weapon.Attach(this.weaponAnchor);
+		
+    weapon.firingDirection = this.mainCamera;
+
+		this.hud.OnWeaponChange(weapon);
+	}
+
+	public void Unequip() {
+		if(this.currentWeapon) {
+			this.currentWeapon.Unattach();
+			this.currentWeapon = null;
+		}
+
+		this.hud.OnDropWeapon();
+	}
 
   public void OnAttack(InputAction.CallbackContext ctx) {
     if(ctx.phase == InputActionPhase.Canceled || this.currentWeapon == null || this.heldObject) {
@@ -269,12 +299,14 @@ public class PlayerController : MonoBehaviour {
 
     this.attacking = true;
     this.currentWeapon.Attack();
+		this.hud.OnWeaponChange(this.currentWeapon);
   }
 
   public void OnReload(InputAction.CallbackContext ctx) {
     if(ctx.phase == InputActionPhase.Canceled || this.currentWeapon == null) return;
 
     this.currentWeapon.Reload();
+		this.hud.OnWeaponChange(this.currentWeapon);
   }
 
   /*
@@ -293,4 +325,14 @@ public class PlayerController : MonoBehaviour {
 
 			t.onTrigger.Invoke();
 	}
+	
+  public void OnEscape(InputAction.CallbackContext ctx) {
+    if(ctx.phase != InputActionPhase.Canceled) return;
+		
+    if(this.gameManager.menuStack.Count == 0) {
+      this.gameManager.PushMenu(this.gameManager.pauseMenu);
+    } else {
+      this.gameManager.PopMenu();
+    }
+  }
 }

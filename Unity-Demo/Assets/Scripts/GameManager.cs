@@ -9,28 +9,9 @@ using TMPro;
 
 using UI;
 
-public class GameState {
-	public string name;
-	
-	public float musicVolume;
-
-	public List<bool> unlocked;
-	
-	// TODO: Find player state
-	public GameState(uint levels) {
-		this.musicVolume = 0.5f;
-		this.unlocked = new();
-	}
-
-	public void LoadState() {
-	}
-	
-	public void SaveState() {
-	}
-}
 
 public class GameManager : MonoBehaviour {
-	public static GameState State;
+  public static GameState State;
  
   [Header("Game Type")]
   public bool isOnline = false;
@@ -40,27 +21,29 @@ public class GameManager : MonoBehaviour {
   [Header("Cursor")]
   public bool cursorLocked = true;
   public bool cursorVisible = false;
-	public GenericMenu hud;
+  public HUD hud;
 
   [Header("Music")]
-	public List<AudioSource> songList;
-	public int currentSong = 0;
+  public List<AudioSource> songList;
+  public int currentSong = 0;
 
   [Header("Menus")]
   public string initialMenu = "";
-	public string pauseMenu = "";
+  public string pauseMenu = "";
   public bool isMenu = true;
   public List<GenericMenu> menuList;
-  Dictionary<string, IMenu> menus;
-  MenuStack menuStack = new MenuStack();
-  IMenu currentMenu;
+
+	// Not in inspector
+  public Dictionary<string, IMenu> menus;
+  public MenuStack menuStack = new MenuStack();
+  public IMenu currentMenu;
 
   void Start() {
     if(this.isDebug) Debug.Log("Scene: #" + Convert.ToString(SceneManager.GetActiveScene().buildIndex));
 
-		if(State == null) {
-			State = new();
-		}
+    if(State == null) {
+      State = new(2);
+    }
 
     this.menus = new Dictionary<string, IMenu>();
 
@@ -70,11 +53,11 @@ public class GameManager : MonoBehaviour {
       this.menuStack.HideMenu(menu);
     }
 
-		foreach(AudioSource song in this.songList) {
-				song.Stop();
-		}
+    foreach(AudioSource song in this.songList) {
+        song.Stop();
+    }
 
-		if(this.currentSong > -1)	this.StartSongIndex(this.currentSong);
+    if(this.currentSong > -1)  this.StartSongIndex(this.currentSong);
 
     this.OnValidate();
   }
@@ -87,7 +70,7 @@ public class GameManager : MonoBehaviour {
       this.PushMenu(this.initialMenu);
     } else {
       this.PopMenu();
-			this.menuStack.ShowMenu(this.hud);
+      this.menuStack.ShowMenu(this.hud);
     }
   }
 
@@ -98,32 +81,32 @@ public class GameManager : MonoBehaviour {
     }
   }
 
-	public void SetMusicVolume(float volume) {
-			State.musicVolume = volume;
+  public void SetMusicVolume(float volume) {
+      State.musicVolume = volume;
 
-			if(this.currentSong > -1) {
-					this.songList[this.currentSong].volume = State.musicVolume;
-			}
-	}
+      if(this.currentSong > -1) {
+          this.songList[this.currentSong].volume = State.musicVolume;
+      }
+  }
 
-	public void StartSongIndex(int index) {
-			if(this.currentSong > -1) {
-					this.songList[this.currentSong].Stop();
-			}
-			
-		  this.songList[index].volume = State.musicVolume;
-			this.songList[index].Play();
-			this.currentSong = index;
-	}
+  public void StartSongIndex(int index) {
+      if(this.currentSong > -1) {
+          this.songList[this.currentSong].Stop();
+      }
+      
+      this.songList[index].volume = State.musicVolume;
+      this.songList[index].Play();
+      this.currentSong = index;
+  }
 
   public void LoadLevelByIndex(int level) {
     SceneManager.LoadScene(level);
   }
 
   public void LoadLevelByName(string level) {
-			if(this.currentSong > -1) {
-					this.songList[this.currentSong].Stop();
-			}
+      if(this.currentSong > -1) {
+          this.songList[this.currentSong].Stop();
+      }
     SceneManager.LoadScene(level);
   }
 
@@ -142,7 +125,7 @@ public class GameManager : MonoBehaviour {
 
     this.menuStack.Push(menu);
     this.isMenu = true;
-		this.menuStack.HideMenu(this.hud);
+    this.menuStack.HideMenu(this.hud);
 
     Cursor.lockState = menu.CursorLocked ? CursorLockMode.Locked : CursorLockMode.None;
     Cursor.visible = menu.CursorVisible;
@@ -159,18 +142,10 @@ public class GameManager : MonoBehaviour {
       Cursor.visible = this.cursorVisible;
 
       Time.timeScale = this.timeScale;
-			this.menuStack.ShowMenu(this.hud);
+      this.menuStack.ShowMenu(this.hud);
     }
     return menu;
   }
-
-	public void OnEscape() {
-		if(this.menuStack.Count == 0) {
-			this.PushMenu(this.pauseMenu);
-		} else {
-			this.PopMenu();
-		}
-	}
 
   // Why does unity not allow functions with return values in the inspector?
   public void CloseMenu() {
@@ -178,7 +153,7 @@ public class GameManager : MonoBehaviour {
   }
 
   public void Quit() {
-		State.SaveState();
+    State.SaveState();
     Application.Quit();
   }
 }
