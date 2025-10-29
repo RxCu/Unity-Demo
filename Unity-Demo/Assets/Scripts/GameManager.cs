@@ -33,7 +33,7 @@ public class GameManager : MonoBehaviour {
   public bool isMenu = true;
   public List<GenericMenu> menuList;
 
-	// Not in inspector
+  // Not in inspector
   public Dictionary<string, IMenu> menus;
   public MenuStack menuStack = new MenuStack();
   public IMenu currentMenu;

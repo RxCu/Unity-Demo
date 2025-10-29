@@ -196,6 +196,7 @@ public class PlayerController : MonoBehaviour {
     this.rb.linearVelocity = jumpVelocity;
 
     this.jumpCount += 1;
+		GameManager.State.jumps++;
   }
 
   /*
@@ -299,6 +300,7 @@ public class PlayerController : MonoBehaviour {
 
     this.attacking = true;
     this.currentWeapon.Attack();
+		GameManager.State.fires++;
 		this.hud.OnWeaponChange(this.currentWeapon);
   }
 
