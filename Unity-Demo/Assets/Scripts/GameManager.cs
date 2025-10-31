@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
 using TMPro;
@@ -33,6 +34,8 @@ public class GameManager : MonoBehaviour {
   public bool isMenu = true;
   public List<GenericMenu> menuList;
 
+  public UnityEvent onStart;
+
   // Not in inspector
   public Dictionary<string, IMenu> menus;
   public MenuStack menuStack = new MenuStack();
@@ -58,6 +61,7 @@ public class GameManager : MonoBehaviour {
     }
 
     if(this.currentSong > -1)  this.StartSongIndex(this.currentSong);
+    this.onStart.Invoke();
 
     this.OnValidate();
   }
@@ -145,6 +149,10 @@ public class GameManager : MonoBehaviour {
       this.menuStack.ShowMenu(this.hud);
     }
     return menu;
+  }
+
+  public void ResetTimer() {
+    State.StartTimer();
   }
 
   // Why does unity not allow functions with return values in the inspector?

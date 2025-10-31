@@ -189,8 +189,8 @@ public class PlayerController : MonoBehaviour {
 
 		if(this.currentPowerup && this.currentPowerup.isJump) {
 				jumpVelocity.y *= this.currentPowerup.multiplier;
-				
-				this.currentPowerup = null;
+
+				this.CollectPowerup(null);	
 		}
 		
     this.rb.linearVelocity = jumpVelocity;
@@ -198,6 +198,11 @@ public class PlayerController : MonoBehaviour {
     this.jumpCount += 1;
 		GameManager.State.jumps++;
   }
+
+	public void CollectPowerup(PlayerPowerup powerup) {
+			this.currentPowerup = powerup;
+			this.hud.OnPowerupChange(this.currentPowerup);
+	}
 
   /*
    * Input Callbacks

@@ -74,7 +74,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 0}
+  m_Resource: {fileID: 8300000, guid: 6d074ef62c0b9bc42a819b849cc92436, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
@@ -173,7 +173,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   projectile: {fileID: 8365308305325959411, guid: 5ab43f00cb0cced48940608903786c0c, type: 3}
-  weaponSpeaker: {fileID: 0}
+  weaponSpeaker: {fileID: 8822686160640100310}
   firePoint: {fileID: 6674611186473895777}
   firingDirection: {fileID: 0}
   fireable: 1

@@ -14,10 +14,10 @@ namespace UI {
     public string Name { get; }
     public GameObject MenuGameObject { get; }
 
-    public void MenuUpdate() { }
+    public void MenuUpdate();
 
-    public void Show() { }
-    public void Hide() { }
+		public void Show();
+    public void Hide();
   }
 
   public class MenuStack : List<IMenu> {
@@ -94,5 +94,10 @@ namespace UI {
     public bool Paused { get => this.pause; }
     public string Name { get => menuName; }
     public GameObject MenuGameObject {get => this.gameObject; }
+		
+		public virtual void MenuUpdate() { }
+		
+		public virtual void Show() { }
+    public virtual void Hide() { }
   }
 }

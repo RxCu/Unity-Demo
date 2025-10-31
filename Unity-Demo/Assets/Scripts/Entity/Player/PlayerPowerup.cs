@@ -30,7 +30,7 @@ public class PlayerPowerup : MonoBehaviour {
 
 		if(!player) return;
 
-		player.currentPowerup = this;
+		player.CollectPowerup(this);
 
 		this.collectible = false;
 		this.renderer.enabled = false;
