@@ -7,8 +7,9 @@ using UnityEngine;
 public class PlayerPowerup : MonoBehaviour {
   public float multiplier = 1;
 	bool collectible = true;
+	PlayerController player;
 
-  Renderer renderer;
+  Renderer renderer_;
 	
 
 [Header("Jumping")]
@@ -20,28 +21,49 @@ public class PlayerPowerup : MonoBehaviour {
 	public float respawnTime = 5.0f;
 
 	void Start() {
-		this.renderer = this.GetComponent<Renderer>();
+			this.renderer_ = this.GetComponent<Renderer>();
+			this.player = null;
+	}
+
+	void Collect() {
+		if(!this.player) return;
+		
+		this.player.CollectPowerup(this);
+
+		this.collectible = false;
+		this.renderer_.enabled = false;
+		
+		if(this.respawn) StartCoroutine("Respawn");	
 	}
 
   void OnTriggerEnter(Collider other) {
-		//if(!(this.collectible) || (other.tag != "Player")) return;
-
-		PlayerController player = other.gameObject.GetComponent<PlayerController>();
-
-		if(!player) return;
-
-		player.CollectPowerup(this);
-
-		this.collectible = false;
-		this.renderer.enabled = false;
+		if((other.tag != "Player")) return;
 		
-		if(this.respawn) StartCoroutine("Respawn");	
+		this.player = other.gameObject.GetComponent<PlayerController>();
+
+		if(!this.collectible) {
+			return;
+		}
+
+		this.Collect();
+	}
+
+	void OnTriggerExit(Collider other) {
+		if((other.tag != "Player")) return;
+
+		this.player = null;
 	}
 
 	IEnumerator Respawn() {
     yield return new WaitForSeconds(this.respawnTime);
 		
 		this.collectible = true;
-		this.renderer.enabled = true;
+		this.renderer_.enabled = true;
+
+		if(this.player != null) {
+			this.Collect();
+		}
+
+		// Check if player is
 	}
 }

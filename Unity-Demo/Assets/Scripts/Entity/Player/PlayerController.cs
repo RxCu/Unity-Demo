@@ -339,7 +339,7 @@ public class PlayerController : MonoBehaviour {
     if(this.gameManager.menuStack.Count == 0) {
       this.gameManager.PushMenu(this.gameManager.pauseMenu);
     } else {
-      this.gameManager.PopMenu();
+      this.gameManager.CloseMenu();
     }
   }
 }

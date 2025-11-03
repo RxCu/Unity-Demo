@@ -182,7 +182,7 @@ MonoBehaviour:
   weaponID: 1
   weaponName: Pistol
   projLifespan: 1
-  projVelocity: 5000000
+  projVelocity: 10000000
   reloadCooldown: 0.5
   rof: 0.1
   fireModes: 0
@@ -239,7 +239,7 @@ Transform:
   m_GameObject: {fileID: 4965002920848590111}
   serializedVersion: 2
   m_LocalRotation: {x: 0.5000055, y: 0.49999467, z: -0.49999458, w: 0.50000536}
-  m_LocalPosition: {x: 1.209, y: 0.24, z: 0.417}
+  m_LocalPosition: {x: 1.415, y: 0.24, z: 0.42}
   m_LocalScale: {x: 1.0419089, y: 0.25, z: 7.305524}
   m_ConstrainProportionsScale: 0
   m_Children: []

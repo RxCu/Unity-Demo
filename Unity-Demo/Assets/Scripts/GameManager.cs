@@ -32,6 +32,7 @@ public class GameManager : MonoBehaviour {
   public string initialMenu = "";
   public string pauseMenu = "";
   public bool isMenu = true;
+	public int minimumMenu = 0;
   public List<GenericMenu> menuList;
 
   public UnityEvent onStart;
@@ -137,7 +138,7 @@ public class GameManager : MonoBehaviour {
     Time.timeScale = menu.Paused ? 0.0f : this.timeScale;
   }
 
-  public IMenu PopMenu() {
+  private IMenu PopMenu() {
     IMenu menu = this.menuStack.Pop();
     if(this.menuStack.Count == 0) {
       this.isMenu = false;
@@ -151,14 +152,29 @@ public class GameManager : MonoBehaviour {
     return menu;
   }
 
+	public void ResetStats(int startingLevel) {
+		State.jumps = 0;
+		State.fires = 0;
+		State.startingLevel = startingLevel;
+		this.ResetTimer();
+	}
+
   public void ResetTimer() {
     State.StartTimer();
   }
 
   // Why does unity not allow functions with return values in the inspector?
   public void CloseMenu() {
+		if(this.menuStack.Count <= this.minimumMenu) return;
+		
     this.PopMenu();
   }
+
+	public void SetMinimumMenu(int n) {
+		if(n < 0) return;
+		
+		this.minimumMenu = n;
+	}
 
   public void Quit() {
     State.SaveState();

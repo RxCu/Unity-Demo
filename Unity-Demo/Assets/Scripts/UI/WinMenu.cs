@@ -22,11 +22,14 @@ namespace UI {
 			if(t.Days > 0) {
 				time = t.ToString(@"d\:") + time;
 			}
-			
-			String text = "Time:  " + time;
-		 
+
+			int level = GameManager.State.startingLevel;
+
+			string text = "Time:  " + time;
 			text += "\nJumps: " + Convert.ToString(GameManager.State.jumps);
 			text += "\nFires: " + Convert.ToString(GameManager.State.fires);
+
+			if(level != 1) text += "\nFrom Level " + Convert.ToString(level);
 
 			this.infoText.text = text;
 		}

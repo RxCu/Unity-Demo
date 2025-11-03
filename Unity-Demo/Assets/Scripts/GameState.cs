@@ -8,6 +8,8 @@ public class GameState {
 	public int jumps;
 	public int fires;
 
+	public int startingLevel;
+
 	// Time
 	float playtime; // "Running" Time
 	float startTime; // Absolute Session Time
@@ -31,6 +33,7 @@ public class GameState {
 		this.playtime  = 0.0f;
 		this.StartTimer();
 		this.fires = 0;
+		this.startingLevel = 0;
 
 		for(uint i = 0; i < levels; i++) {
 			this.unlocked.Add(false);
